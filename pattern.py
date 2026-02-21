@@ -228,12 +228,15 @@ def generate_pdf(pattern_img, legend, grid_width, grid_height, n_colors_used):
     from reportlab.pdfgen import canvas as rl_canvas
     from reportlab.lib.utils import ImageReader
 
-    # Colour palette — matches the craft-green web theme
-    DARK_GREEN  = (0x2d / 255, 0x50 / 255, 0x16 / 255)
-    MID_GREEN   = (0x4a / 255, 0x7c / 255, 0x28 / 255)
-    LIGHT_GREEN = (0xe8 / 255, 0xf5 / 255, 0xe9 / 255)
-    DARK_GRAY   = (0.25, 0.25, 0.25)
-    MID_GRAY    = (0.55, 0.55, 0.55)
+    # Colour palette — mirrors the teal/slate web UI theme
+    TEAL      = (0x0d / 255, 0x94 / 255, 0x88 / 255)  # #0d9488 header, symbols
+    DARK_TEAL = (0x0f / 255, 0x76 / 255, 0x6e / 255)  # #0f766e col-header bg
+    TEAL_BG   = (0xf0 / 255, 0xfd / 255, 0xfa / 255)  # #f0fdfa alt-row stripe
+    SLATE_800 = (0x1e / 255, 0x29 / 255, 0x3b / 255)  # #1e293b primary text
+    SLATE_600 = (0x47 / 255, 0x55 / 255, 0x69 / 255)  # #475569 subtitle
+    SLATE_500 = (0x64 / 255, 0x74 / 255, 0x8b / 255)  # #64748b muted text
+    SLATE_400 = (0x94 / 255, 0xa3 / 255, 0xb8 / 255)  # #94a3b8 footer / borders
+    BORDER    = (0xe2 / 255, 0xe8 / 255, 0xf0 / 255)  # #e2e8f0 table borders
 
     page_w, page_h = A4      # ≈ 595 × 842 pt
     margin = 18 * mm         # ≈ 51 pt
@@ -249,20 +252,20 @@ def generate_pdf(pattern_img, legend, grid_width, grid_height, n_colors_used):
     )
 
     def draw_header(title):
-        """Draw the green header bar + title. Returns bottom y of the bar."""
-        c.setFillColorRGB(*DARK_GREEN)
+        """Draw the teal header bar + title. Returns bottom y of the bar."""
+        c.setFillColorRGB(*TEAL)
         c.rect(0, page_h - HEADER_H, page_w, HEADER_H, fill=1, stroke=0)
         c.setFillColorRGB(1, 1, 1)
         c.setFont("Helvetica-Bold", 18)
         c.drawCentredString(page_w / 2, page_h - HEADER_H + 22, title)
         # Subtitle just below the bar
-        c.setFillColorRGB(*DARK_GRAY)
+        c.setFillColorRGB(*SLATE_600)
         c.setFont("Helvetica", 9)
         c.drawCentredString(page_w / 2, page_h - HEADER_H - 15, subtitle_text)
         return page_h - HEADER_H
 
     def draw_footer(page_num, total):
-        c.setFillColorRGB(*MID_GRAY)
+        c.setFillColorRGB(*SLATE_400)
         c.setFont("Helvetica", 7)
         c.drawCentredString(
             page_w / 2, margin - 14,
@@ -275,7 +278,7 @@ def generate_pdf(pattern_img, legend, grid_width, grid_height, n_colors_used):
     header_bottom = draw_header("Cross-Stitch Pattern")
 
     hint_y = header_bottom - 30
-    c.setFillColorRGB(*MID_GRAY)
+    c.setFillColorRGB(*SLATE_500)
     c.setFont("Helvetica-Oblique", 7.5)
     c.drawCentredString(
         page_w / 2, hint_y,
@@ -313,7 +316,7 @@ def generate_pdf(pattern_img, legend, grid_width, grid_height, n_colors_used):
     c.drawImage(reader, img_x, img_y, width=draw_w, height=draw_h)
 
     # Thin border around the pattern
-    c.setStrokeColorRGB(*MID_GREEN)
+    c.setStrokeColorRGB(*BORDER)
     c.setLineWidth(0.5)
     c.rect(img_x, img_y, draw_w, draw_h, fill=0, stroke=1)
 
@@ -340,7 +343,7 @@ def generate_pdf(pattern_img, legend, grid_width, grid_height, n_colors_used):
     row_start_y  = table_top - HEADER_ROW_H  # bottom of the column-header row
 
     # Column header background
-    c.setFillColorRGB(*MID_GREEN)
+    c.setFillColorRGB(*DARK_TEAL)
     c.rect(margin, row_start_y, usable_w, HEADER_ROW_H, fill=1, stroke=0)
 
     # Column header labels
@@ -357,11 +360,11 @@ def generate_pdf(pattern_img, legend, grid_width, grid_height, n_colors_used):
 
         # Alternating stripe
         if idx % 2 == 0:
-            c.setFillColorRGB(*LIGHT_GREEN)
+            c.setFillColorRGB(*TEAL_BG)
             c.rect(margin, row_y, usable_w, ROW_H, fill=1, stroke=0)
 
-        # Symbol — bold, dark green, centred in its column
-        c.setFillColorRGB(*DARK_GREEN)
+        # Symbol — bold, teal, centred in its column
+        c.setFillColorRGB(*TEAL)
         c.setFont("Helvetica-Bold", 10)
         c.drawCentredString(COL_SYM + 16, row_y + 4, entry["symbol"])
 
@@ -373,21 +376,22 @@ def generate_pdf(pattern_img, legend, grid_width, grid_height, n_colors_used):
         sw_y = row_y + (ROW_H - SWATCH_H) / 2
         c.setFillColorRGB(r_f, g_f, b_f)
         c.rect(sw_x, sw_y, SWATCH_W, SWATCH_H, fill=1, stroke=0)
-        c.setStrokeColorRGB(*MID_GRAY)
+        c.setStrokeColorRGB(*SLATE_400)
         c.setLineWidth(0.3)
         c.rect(sw_x, sw_y, SWATCH_W, SWATCH_H, fill=0, stroke=1)
 
         # Hex code alongside swatch
-        c.setFillColorRGB(*MID_GRAY)
+        c.setFillColorRGB(*SLATE_500)
         c.setFont("Helvetica", 7.5)
         c.drawString(sw_x + SWATCH_W + 3, row_y + 4, entry["hex"])
 
         # DMC number
-        c.setFillColorRGB(*DARK_GRAY)
+        c.setFillColorRGB(*SLATE_800)
         c.setFont("Helvetica-Bold", 8.5)
         c.drawString(COL_DMC + 4, row_y + 4, str(entry["dmc"]))
 
         # Thread name
+        c.setFillColorRGB(*SLATE_800)
         c.setFont("Helvetica", 8.5)
         c.drawString(COL_NAME + 4, row_y + 4, entry["name"])
 
@@ -395,7 +399,7 @@ def generate_pdf(pattern_img, legend, grid_width, grid_height, n_colors_used):
     n_rows = len(legend)
     table_h = HEADER_ROW_H + n_rows * ROW_H
     table_bottom = row_start_y - n_rows * ROW_H
-    c.setStrokeColorRGB(*MID_GREEN)
+    c.setStrokeColorRGB(*BORDER)
     c.setLineWidth(0.75)
     c.rect(margin, table_bottom, usable_w, table_h, fill=0, stroke=1)
 
