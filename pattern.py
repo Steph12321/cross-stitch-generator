@@ -212,6 +212,205 @@ def generate_legend(dmc_list, dmc_symbols):
     return sorted(seen.values(), key=lambda x: x["symbol"])
 
 
+def generate_pdf(pattern_img, legend, grid_width, grid_height, n_colors_used):
+    """
+    Generate a print-friendly 2-page PDF.
+
+    Page 1: the cross-stitch pattern grid scaled to fill A4.
+    Page 2: thread legend table with DMC codes and colour swatches.
+
+    Returns
+    -------
+    bytes : raw PDF bytes
+    """
+    from reportlab.lib.pagesizes import A4
+    from reportlab.lib.units import mm
+    from reportlab.pdfgen import canvas as rl_canvas
+    from reportlab.lib.utils import ImageReader
+
+    # Colour palette — matches the craft-green web theme
+    DARK_GREEN  = (0x2d / 255, 0x50 / 255, 0x16 / 255)
+    MID_GREEN   = (0x4a / 255, 0x7c / 255, 0x28 / 255)
+    LIGHT_GREEN = (0xe8 / 255, 0xf5 / 255, 0xe9 / 255)
+    DARK_GRAY   = (0.25, 0.25, 0.25)
+    MID_GRAY    = (0.55, 0.55, 0.55)
+
+    page_w, page_h = A4      # ≈ 595 × 842 pt
+    margin = 18 * mm         # ≈ 51 pt
+    usable_w = page_w - 2 * margin
+    HEADER_H = 48
+
+    buf = io.BytesIO()
+    c = rl_canvas.Canvas(buf, pagesize=A4)
+
+    subtitle_text = (
+        f"{grid_width} \u00d7 {grid_height} stitches  \u00b7  "
+        f"{n_colors_used} DMC thread colours"
+    )
+
+    def draw_header(title):
+        """Draw the green header bar + title. Returns bottom y of the bar."""
+        c.setFillColorRGB(*DARK_GREEN)
+        c.rect(0, page_h - HEADER_H, page_w, HEADER_H, fill=1, stroke=0)
+        c.setFillColorRGB(1, 1, 1)
+        c.setFont("Helvetica-Bold", 18)
+        c.drawCentredString(page_w / 2, page_h - HEADER_H + 22, title)
+        # Subtitle just below the bar
+        c.setFillColorRGB(*DARK_GRAY)
+        c.setFont("Helvetica", 9)
+        c.drawCentredString(page_w / 2, page_h - HEADER_H - 15, subtitle_text)
+        return page_h - HEADER_H
+
+    def draw_footer(page_num, total):
+        c.setFillColorRGB(*MID_GRAY)
+        c.setFont("Helvetica", 7)
+        c.drawCentredString(
+            page_w / 2, margin - 14,
+            f"Cross-Stitch Studio  \u00b7  Page {page_num} of {total}",
+        )
+
+    # ═══════════════════════════════════════════════════════════════════════
+    # PAGE 1 — PATTERN GRID
+    # ═══════════════════════════════════════════════════════════════════════
+    header_bottom = draw_header("Cross-Stitch Pattern")
+
+    hint_y = header_bottom - 30
+    c.setFillColorRGB(*MID_GRAY)
+    c.setFont("Helvetica-Oblique", 7.5)
+    c.drawCentredString(
+        page_w / 2, hint_y,
+        "Each cell = 1 stitch  \u00b7  See page 2 for the thread legend",
+    )
+
+    pat_w, pat_h = pattern_img.size
+    avail_y_min = margin + 8          # above the footer
+    avail_y_max = hint_y - 8          # below the hint line
+    avail_h = avail_y_max - avail_y_min
+
+    scale = min(usable_w / pat_w, avail_h / pat_h)
+    draw_w = pat_w * scale
+    draw_h = pat_h * scale
+
+    # Pre-scale the pattern image to ~150 DPI using NEAREST resampling so
+    # stitch cells remain pixel-crisp in the PDF (no PDF-viewer blurring).
+    TARGET_DPI = 150
+    draw_w_in = draw_w / 72  # points → inches
+    target_px_w = max(pat_w, int(draw_w_in * TARGET_DPI))
+    px_scale = target_px_w / pat_w
+    embed_img = pattern_img.resize(
+        (int(pat_w * px_scale), int(pat_h * px_scale)), Image.NEAREST
+    )
+
+    img_buf = io.BytesIO()
+    embed_img.save(img_buf, format="PNG")
+    img_buf.seek(0)
+    reader = ImageReader(img_buf)
+
+    # Centre the image in the available area
+    img_x = (page_w - draw_w) / 2
+    img_y = (avail_y_min + avail_y_max) / 2 - draw_h / 2
+
+    c.drawImage(reader, img_x, img_y, width=draw_w, height=draw_h)
+
+    # Thin border around the pattern
+    c.setStrokeColorRGB(*MID_GREEN)
+    c.setLineWidth(0.5)
+    c.rect(img_x, img_y, draw_w, draw_h, fill=0, stroke=1)
+
+    draw_footer(1, 2)
+    c.showPage()
+
+    # ═══════════════════════════════════════════════════════════════════════
+    # PAGE 2 — THREAD LEGEND
+    # ═══════════════════════════════════════════════════════════════════════
+    header_bottom = draw_header("Thread Legend")
+
+    # Column layout (x positions)
+    COL_SYM    = margin               # symbol
+    COL_SWATCH = margin + 32          # colour swatch + hex code
+    COL_DMC    = margin + 32 + 82     # DMC number
+    COL_NAME   = margin + 32 + 82 + 52  # thread name
+
+    HEADER_ROW_H = 18
+    ROW_H        = 17
+    SWATCH_W     = 20
+    SWATCH_H     = 11
+
+    table_top    = header_bottom - 26
+    row_start_y  = table_top - HEADER_ROW_H  # bottom of the column-header row
+
+    # Column header background
+    c.setFillColorRGB(*MID_GREEN)
+    c.rect(margin, row_start_y, usable_w, HEADER_ROW_H, fill=1, stroke=0)
+
+    # Column header labels
+    c.setFillColorRGB(1, 1, 1)
+    c.setFont("Helvetica-Bold", 8.5)
+    c.drawCentredString(COL_SYM + 16, row_start_y + 5, "Sym")
+    c.drawString(COL_SWATCH + 4,      row_start_y + 5, "Colour")
+    c.drawString(COL_DMC + 4,         row_start_y + 5, "DMC \u0023")
+    c.drawString(COL_NAME + 4,        row_start_y + 5, "Thread Name")
+
+    # Data rows
+    for idx, entry in enumerate(legend):
+        row_y = row_start_y - (idx + 1) * ROW_H  # bottom of this row
+
+        # Alternating stripe
+        if idx % 2 == 0:
+            c.setFillColorRGB(*LIGHT_GREEN)
+            c.rect(margin, row_y, usable_w, ROW_H, fill=1, stroke=0)
+
+        # Symbol — bold, dark green, centred in its column
+        c.setFillColorRGB(*DARK_GREEN)
+        c.setFont("Helvetica-Bold", 10)
+        c.drawCentredString(COL_SYM + 16, row_y + 4, entry["symbol"])
+
+        # Colour swatch
+        r_f = int(entry["hex"][1:3], 16) / 255
+        g_f = int(entry["hex"][3:5], 16) / 255
+        b_f = int(entry["hex"][5:7], 16) / 255
+        sw_x = COL_SWATCH + 4
+        sw_y = row_y + (ROW_H - SWATCH_H) / 2
+        c.setFillColorRGB(r_f, g_f, b_f)
+        c.rect(sw_x, sw_y, SWATCH_W, SWATCH_H, fill=1, stroke=0)
+        c.setStrokeColorRGB(*MID_GRAY)
+        c.setLineWidth(0.3)
+        c.rect(sw_x, sw_y, SWATCH_W, SWATCH_H, fill=0, stroke=1)
+
+        # Hex code alongside swatch
+        c.setFillColorRGB(*MID_GRAY)
+        c.setFont("Helvetica", 7.5)
+        c.drawString(sw_x + SWATCH_W + 3, row_y + 4, entry["hex"])
+
+        # DMC number
+        c.setFillColorRGB(*DARK_GRAY)
+        c.setFont("Helvetica-Bold", 8.5)
+        c.drawString(COL_DMC + 4, row_y + 4, str(entry["dmc"]))
+
+        # Thread name
+        c.setFont("Helvetica", 8.5)
+        c.drawString(COL_NAME + 4, row_y + 4, entry["name"])
+
+    # Outer border around the whole table
+    n_rows = len(legend)
+    table_h = HEADER_ROW_H + n_rows * ROW_H
+    table_bottom = row_start_y - n_rows * ROW_H
+    c.setStrokeColorRGB(*MID_GREEN)
+    c.setLineWidth(0.75)
+    c.rect(margin, table_bottom, usable_w, table_h, fill=0, stroke=1)
+
+    # Separator line under column headers
+    c.setLineWidth(0.5)
+    c.line(margin, row_start_y, margin + usable_w, row_start_y)
+
+    draw_footer(2, 2)
+    c.showPage()
+
+    c.save()
+    buf.seek(0)
+    return buf.read()
+
+
 def process_image(file_obj, n_colors, grid_width):
     """
     Full pipeline: open image → quantize → match DMC → draw → base64.
@@ -224,7 +423,8 @@ def process_image(file_obj, n_colors, grid_width):
 
     Returns
     -------
-    dict with keys: image_b64, legend, grid_width, grid_height, n_colors_used
+    dict with keys: image_b64, pattern_img, legend, grid_width, grid_height,
+                    n_colors_used
     """
     img = Image.open(file_obj).convert("RGB")
 
@@ -247,6 +447,7 @@ def process_image(file_obj, n_colors, grid_width):
 
     return {
         "image_b64": image_b64,
+        "pattern_img": pattern_img,   # PIL Image — used for PDF generation
         "legend": legend,
         "grid_width": grid_width,
         "grid_height": grid_height,
