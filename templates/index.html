@@ -1,0 +1,110 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Cross-Stitch Pattern Generator</title>
+  <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+</head>
+<body>
+  <header>
+    <h1>Cross-Stitch Pattern Generator</h1>
+    <p class="tagline">Upload a photo and get a printable cross-stitch pattern with DMC thread codes.</p>
+  </header>
+
+  <main>
+    <!-- Upload Form (always visible) -->
+    <section class="form-section no-print">
+      <form method="POST" enctype="multipart/form-data" id="upload-form">
+        <div class="field">
+          <label for="photo">Photo</label>
+          <input type="file" id="photo" name="photo" accept="image/*" required>
+        </div>
+
+        <div class="field">
+          <label for="n_colors">
+            Number of colours: <strong id="n_colors_val">16</strong>
+          </label>
+          <input
+            type="range" id="n_colors" name="n_colors"
+            min="8" max="24" value="16"
+            oninput="document.getElementById('n_colors_val').textContent = this.value">
+          <div class="range-labels"><span>8</span><span>24</span></div>
+        </div>
+
+        <div class="field">
+          <label for="grid_width">
+            Grid width (stitches): <strong id="grid_width_val">60</strong>
+          </label>
+          <input
+            type="range" id="grid_width" name="grid_width"
+            min="30" max="100" value="60"
+            oninput="document.getElementById('grid_width_val').textContent = this.value">
+          <div class="range-labels"><span>30</span><span>100</span></div>
+        </div>
+
+        <button type="submit" class="btn-generate">Generate Pattern</button>
+      </form>
+
+      {% if error %}
+        <p class="error">{{ error }}</p>
+      {% endif %}
+    </section>
+
+    <!-- Result Section -->
+    {% if result %}
+    <section class="result-section">
+      <h2>Your Pattern</h2>
+      <p class="pattern-info">
+        Grid: <strong>{{ result.grid_width }} × {{ result.grid_height }}</strong> stitches
+        &nbsp;|&nbsp;
+        Colours used: <strong>{{ result.n_colors_used }}</strong>
+      </p>
+
+      <div class="pattern-wrapper">
+        <img
+          class="pattern-image"
+          src="data:image/png;base64,{{ result.image_b64 }}"
+          alt="Cross-stitch pattern">
+      </div>
+
+      <a
+        class="btn-download no-print"
+        href="data:image/png;base64,{{ result.image_b64 }}"
+        download="cross_stitch_pattern.png">
+        Download Pattern (PNG)
+      </a>
+
+      <h3>Colour Legend</h3>
+      <table class="legend-table">
+        <thead>
+          <tr>
+            <th>Symbol</th>
+            <th>Colour</th>
+            <th>DMC #</th>
+            <th>Name</th>
+          </tr>
+        </thead>
+        <tbody>
+          {% for entry in result.legend %}
+          <tr>
+            <td class="symbol-cell">{{ entry.symbol }}</td>
+            <td>
+              <span class="swatch" style="background-color: {{ entry.hex }};"></span>
+              {{ entry.hex }}
+            </td>
+            <td>{{ entry.dmc }}</td>
+            <td>{{ entry.name }}</td>
+          </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </section>
+    {% endif %}
+  </main>
+
+  <footer class="no-print">
+    <p>Patterns use DMC stranded cotton thread colours.</p>
+  </footer>
+</body>
+</html>

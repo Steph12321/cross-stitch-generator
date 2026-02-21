@@ -1,0 +1,254 @@
+/* ===== Reset & Base ===== */
+*, *::before, *::after {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+body {
+  font-family: Georgia, "Times New Roman", serif;
+  background: #f5f0e8;
+  color: #2a2a2a;
+  line-height: 1.6;
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+}
+
+/* ===== Header ===== */
+header {
+  background: #2d5016;
+  color: #fff;
+  padding: 2rem 1.5rem 1.5rem;
+  text-align: center;
+}
+
+header h1 {
+  font-size: 2rem;
+  letter-spacing: 0.02em;
+  margin-bottom: 0.4rem;
+}
+
+.tagline {
+  font-size: 0.95rem;
+  opacity: 0.85;
+  font-style: italic;
+}
+
+/* ===== Main layout ===== */
+main {
+  flex: 1;
+  max-width: 900px;
+  width: 100%;
+  margin: 2rem auto;
+  padding: 0 1.25rem;
+}
+
+/* ===== Form section ===== */
+.form-section {
+  background: #fff;
+  border: 1px solid #d4c9b0;
+  border-radius: 6px;
+  padding: 1.75rem 2rem;
+  margin-bottom: 2rem;
+}
+
+.field {
+  margin-bottom: 1.4rem;
+}
+
+label {
+  display: block;
+  font-size: 0.95rem;
+  margin-bottom: 0.4rem;
+  color: #3a3a3a;
+}
+
+input[type="file"] {
+  font-family: inherit;
+  font-size: 0.9rem;
+  width: 100%;
+  padding: 0.4rem 0;
+  cursor: pointer;
+}
+
+input[type="range"] {
+  width: 100%;
+  accent-color: #2d5016;
+  cursor: pointer;
+  margin-top: 0.3rem;
+}
+
+.range-labels {
+  display: flex;
+  justify-content: space-between;
+  font-size: 0.78rem;
+  color: #777;
+  margin-top: 0.15rem;
+}
+
+.btn-generate {
+  display: inline-block;
+  background: #2d5016;
+  color: #fff;
+  border: none;
+  border-radius: 4px;
+  padding: 0.65rem 1.8rem;
+  font-family: inherit;
+  font-size: 1rem;
+  cursor: pointer;
+  transition: background 0.2s;
+  margin-top: 0.5rem;
+}
+
+.btn-generate:hover {
+  background: #3d6b20;
+}
+
+.error {
+  margin-top: 1rem;
+  color: #b00020;
+  background: #fff0f0;
+  border: 1px solid #f5c6cb;
+  border-radius: 4px;
+  padding: 0.6rem 0.9rem;
+  font-size: 0.9rem;
+}
+
+/* ===== Result section ===== */
+.result-section {
+  background: #fff;
+  border: 1px solid #d4c9b0;
+  border-radius: 6px;
+  padding: 1.75rem 2rem;
+}
+
+.result-section h2 {
+  font-size: 1.5rem;
+  color: #2d5016;
+  margin-bottom: 0.5rem;
+}
+
+.result-section h3 {
+  font-size: 1.15rem;
+  color: #2d5016;
+  margin: 1.75rem 0 0.75rem;
+}
+
+.pattern-info {
+  font-size: 0.9rem;
+  color: #555;
+  margin-bottom: 1.25rem;
+}
+
+/* ===== Pattern image ===== */
+.pattern-wrapper {
+  overflow-x: auto;
+  border: 1px solid #d4c9b0;
+  background: #fff;
+  margin-bottom: 1rem;
+}
+
+.pattern-image {
+  display: block;
+  /* Critical: prevent browser from anti-aliasing the pixel art */
+  image-rendering: pixelated;
+  image-rendering: crisp-edges;
+  max-width: 100%;
+}
+
+/* ===== Download button ===== */
+.btn-download {
+  display: inline-block;
+  background: #4a7a22;
+  color: #fff;
+  text-decoration: none;
+  border-radius: 4px;
+  padding: 0.55rem 1.5rem;
+  font-size: 0.9rem;
+  transition: background 0.2s;
+  margin-bottom: 0.5rem;
+}
+
+.btn-download:hover {
+  background: #2d5016;
+}
+
+/* ===== Legend table ===== */
+.legend-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 0.88rem;
+}
+
+.legend-table th {
+  background: #2d5016;
+  color: #fff;
+  text-align: left;
+  padding: 0.5rem 0.75rem;
+  font-weight: 600;
+}
+
+.legend-table td {
+  padding: 0.45rem 0.75rem;
+  border-bottom: 1px solid #e8e0d0;
+  vertical-align: middle;
+}
+
+.legend-table tr:last-child td {
+  border-bottom: none;
+}
+
+.legend-table tr:nth-child(even) td {
+  background: #faf7f2;
+}
+
+.symbol-cell {
+  font-family: monospace;
+  font-size: 1rem;
+  font-weight: bold;
+  color: #2d5016;
+  text-align: center;
+  width: 2.5rem;
+}
+
+.swatch {
+  display: inline-block;
+  width: 16px;
+  height: 16px;
+  border: 1px solid #999;
+  border-radius: 2px;
+  vertical-align: middle;
+  margin-right: 0.4rem;
+}
+
+/* ===== Footer ===== */
+footer {
+  text-align: center;
+  padding: 1rem;
+  font-size: 0.8rem;
+  color: #777;
+  border-top: 1px solid #d4c9b0;
+  margin-top: auto;
+}
+
+/* ===== Print styles ===== */
+@media print {
+  .no-print {
+    display: none !important;
+  }
+
+  body {
+    background: #fff;
+  }
+
+  .result-section {
+    border: none;
+    padding: 0;
+  }
+
+  .pattern-image {
+    max-width: 100%;
+    image-rendering: pixelated;
+  }
+}

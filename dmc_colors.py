@@ -1,0 +1,131 @@
+"""DMC stranded cotton thread colour database (~88 colours)."""
+
+DMC_COLORS = [
+    # Blacks & Whites
+    {"dmc": "310",  "name": "Black",           "rgb": (0,   0,   0)},
+    {"dmc": "B5200","name": "Snow White",       "rgb": (255, 255, 255)},
+    {"dmc": "White","name": "White",            "rgb": (248, 248, 255)},
+    {"dmc": "Ecru", "name": "Ecru",             "rgb": (240, 234, 214)},
+
+    # Grays
+    {"dmc": "762",  "name": "Very Light Pearl Gray",  "rgb": (212, 213, 212)},
+    {"dmc": "415",  "name": "Pearl Gray",              "rgb": (191, 191, 191)},
+    {"dmc": "318",  "name": "Light Steel Gray",        "rgb": (163, 166, 168)},
+    {"dmc": "414",  "name": "Dark Steel Gray",         "rgb": (140, 138, 135)},
+    {"dmc": "317",  "name": "Pewter Gray",             "rgb": (120, 117, 115)},
+    {"dmc": "413",  "name": "Dark Pewter Gray",        "rgb": (90,  87,  87)},
+    {"dmc": "3799", "name": "Very Dark Pewter Gray",   "rgb": (60,  57,  57)},
+
+    # Reds
+    {"dmc": "321",  "name": "Red",                     "rgb": (196, 32,  40)},
+    {"dmc": "498",  "name": "Dark Red",                "rgb": (157, 24,  33)},
+    {"dmc": "816",  "name": "Garnet",                  "rgb": (152, 26,  34)},
+    {"dmc": "814",  "name": "Dark Garnet",             "rgb": (121, 18,  27)},
+    {"dmc": "304",  "name": "Medium Red",              "rgb": (179, 32,  40)},
+    {"dmc": "606",  "name": "Bright Orange Red",       "rgb": (230, 51,  18)},
+    {"dmc": "666",  "name": "Bright Red",              "rgb": (210, 30,  45)},
+
+    # Pinks & Roses
+    {"dmc": "963",  "name": "Ultra Very Light Dusty Rose", "rgb": (255, 211, 207)},
+    {"dmc": "761",  "name": "Light Salmon",            "rgb": (253, 189, 175)},
+    {"dmc": "760",  "name": "Salmon",                  "rgb": (242, 155, 145)},
+    {"dmc": "3712", "name": "Medium Salmon",           "rgb": (234, 121, 111)},
+    {"dmc": "3801", "name": "Very Dark Melon",         "rgb": (223, 73,  84)},
+    {"dmc": "893",  "name": "Light Carnation",         "rgb": (250, 147, 157)},
+    {"dmc": "892",  "name": "Medium Carnation",        "rgb": (240, 111, 121)},
+    {"dmc": "891",  "name": "Dark Carnation",          "rgb": (226, 71,  85)},
+    {"dmc": "818",  "name": "Baby Pink",               "rgb": (255, 213, 210)},
+    {"dmc": "776",  "name": "Medium Pink",             "rgb": (251, 173, 175)},
+    {"dmc": "3326", "name": "Light Rose",              "rgb": (247, 165, 168)},
+    {"dmc": "899",  "name": "Medium Rose",             "rgb": (234, 115, 126)},
+    {"dmc": "335",  "name": "Rose",                    "rgb": (218, 70,  100)},
+
+    # Purples & Violets
+    {"dmc": "211",  "name": "Light Lavender",          "rgb": (220, 186, 222)},
+    {"dmc": "210",  "name": "Medium Lavender",         "rgb": (195, 153, 196)},
+    {"dmc": "209",  "name": "Dark Lavender",           "rgb": (168, 119, 167)},
+    {"dmc": "208",  "name": "Very Dark Lavender",      "rgb": (139, 89,  139)},
+    {"dmc": "553",  "name": "Violet",                  "rgb": (148, 90,  148)},
+    {"dmc": "552",  "name": "Medium Violet",           "rgb": (125, 68,  125)},
+    {"dmc": "550",  "name": "Very Dark Violet",        "rgb": (93,  36,  93)},
+    {"dmc": "3837", "name": "Ultra Dark Lavender",     "rgb": (105, 57,  121)},
+    {"dmc": "327",  "name": "Dark Violet",             "rgb": (84,  37,  97)},
+
+    # Blues
+    {"dmc": "3756", "name": "Ultra Very Light Baby Blue", "rgb": (225, 241, 252)},
+    {"dmc": "775",  "name": "Very Light Baby Blue",    "rgb": (199, 224, 243)},
+    {"dmc": "3325", "name": "Light Baby Blue",         "rgb": (168, 206, 233)},
+    {"dmc": "334",  "name": "Medium Baby Blue",        "rgb": (112, 166, 208)},
+    {"dmc": "322",  "name": "Dark Baby Blue",          "rgb": (79,  138, 189)},
+    {"dmc": "312",  "name": "Very Dark Baby Blue",     "rgb": (52,  107, 160)},
+    {"dmc": "336",  "name": "Navy Blue",               "rgb": (33,  60,  122)},
+    {"dmc": "820",  "name": "Very Dark Royal Blue",    "rgb": (24,  50,  117)},
+    {"dmc": "825",  "name": "Dark Blue",               "rgb": (42,  112, 168)},
+    {"dmc": "826",  "name": "Medium Blue",             "rgb": (78,  148, 196)},
+    {"dmc": "827",  "name": "Very Light Blue",         "rgb": (175, 214, 238)},
+    {"dmc": "519",  "name": "Sky Blue",                "rgb": (118, 188, 219)},
+    {"dmc": "518",  "name": "Light Wedgwood",          "rgb": (83,  163, 196)},
+    {"dmc": "517",  "name": "Medium Wedgwood",         "rgb": (60,  137, 168)},
+
+    # Teals & Aquas
+    {"dmc": "3811", "name": "Very Light Turquoise",    "rgb": (188, 226, 230)},
+    {"dmc": "3810", "name": "Dark Turquoise",          "rgb": (72,  164, 174)},
+    {"dmc": "3809", "name": "Very Dark Turquoise",     "rgb": (53,  138, 148)},
+    {"dmc": "3808", "name": "Ultra Very Dark Turquoise","rgb": (38,  112, 120)},
+    {"dmc": "807",  "name": "Peacock Blue",            "rgb": (73,  165, 181)},
+    {"dmc": "806",  "name": "Dark Peacock Blue",       "rgb": (50,  140, 157)},
+    {"dmc": "3766", "name": "Light Peacock Blue",      "rgb": (113, 189, 204)},
+
+    # Greens
+    {"dmc": "3819", "name": "Light Moss Green",        "rgb": (219, 228, 99)},
+    {"dmc": "581",  "name": "Moss Green",              "rgb": (170, 171, 60)},
+    {"dmc": "3364", "name": "Pine Green",              "rgb": (120, 157, 100)},
+    {"dmc": "3363", "name": "Medium Pine Green",       "rgb": (97,  130, 78)},
+    {"dmc": "3362", "name": "Dark Pine Green",         "rgb": (74,  103, 58)},
+    {"dmc": "319",  "name": "Very Dark Pistachio Green","rgb": (53,  94,  50)},
+    {"dmc": "367",  "name": "Dark Pistachio Green",    "rgb": (83,  119, 74)},
+    {"dmc": "320",  "name": "Medium Pistachio Green",  "rgb": (119, 155, 103)},
+    {"dmc": "368",  "name": "Light Pistachio Green",   "rgb": (163, 194, 148)},
+    {"dmc": "369",  "name": "Very Light Pistachio Green","rgb": (202, 226, 190)},
+    {"dmc": "471",  "name": "Very Light Avocado Green","rgb": (162, 180, 108)},
+    {"dmc": "470",  "name": "Light Avocado Green",     "rgb": (131, 154, 72)},
+    {"dmc": "469",  "name": "Avocado Green",           "rgb": (105, 126, 52)},
+    {"dmc": "936",  "name": "Very Dark Avocado Green", "rgb": (72,  90,  42)},
+    {"dmc": "703",  "name": "Chartreuse",              "rgb": (128, 189, 83)},
+    {"dmc": "702",  "name": "Kelly Green",             "rgb": (83,  166, 57)},
+    {"dmc": "700",  "name": "Bright Green",            "rgb": (40,  133, 40)},
+
+    # Yellows & Golds
+    {"dmc": "3823", "name": "Ultra Pale Yellow",       "rgb": (255, 252, 211)},
+    {"dmc": "745",  "name": "Light Pale Yellow",       "rgb": (255, 240, 175)},
+    {"dmc": "744",  "name": "Pale Yellow",             "rgb": (255, 228, 130)},
+    {"dmc": "743",  "name": "Medium Yellow",           "rgb": (253, 206, 82)},
+    {"dmc": "742",  "name": "Light Tangerine",         "rgb": (252, 183, 52)},
+    {"dmc": "725",  "name": "Topaz",                   "rgb": (253, 194, 73)},
+    {"dmc": "726",  "name": "Light Topaz",             "rgb": (253, 211, 110)},
+    {"dmc": "783",  "name": "Medium Topaz",            "rgb": (210, 155, 55)},
+    {"dmc": "782",  "name": "Dark Topaz",              "rgb": (179, 124, 38)},
+    {"dmc": "780",  "name": "Ultra Very Dark Topaz",   "rgb": (142, 90,  20)},
+
+    # Oranges
+    {"dmc": "741",  "name": "Medium Tangerine",        "rgb": (251, 162, 34)},
+    {"dmc": "740",  "name": "Tangerine",               "rgb": (248, 136, 17)},
+    {"dmc": "947",  "name": "Burnt Orange",            "rgb": (240, 98,  36)},
+    {"dmc": "946",  "name": "Medium Burnt Orange",     "rgb": (224, 78,  25)},
+    {"dmc": "900",  "name": "Dark Burnt Orange",       "rgb": (202, 55,  14)},
+
+    # Browns & Tans
+    {"dmc": "3866", "name": "Ultra Very Light Mocha Brown", "rgb": (247, 242, 232)},
+    {"dmc": "3865", "name": "Winter White",            "rgb": (242, 240, 233)},
+    {"dmc": "738",  "name": "Very Light Tan",          "rgb": (231, 199, 155)},
+    {"dmc": "437",  "name": "Light Tan",               "rgb": (208, 165, 110)},
+    {"dmc": "436",  "name": "Tan",                     "rgb": (189, 141, 83)},
+    {"dmc": "435",  "name": "Very Light Brown",        "rgb": (164, 108, 57)},
+    {"dmc": "434",  "name": "Light Brown",             "rgb": (140, 86,  41)},
+    {"dmc": "433",  "name": "Medium Brown",            "rgb": (113, 68,  30)},
+    {"dmc": "801",  "name": "Dark Coffee Brown",       "rgb": (89,  51,  18)},
+    {"dmc": "898",  "name": "Very Dark Coffee Brown",  "rgb": (66,  34,  9)},
+    {"dmc": "3782", "name": "Light Mocha Brown",       "rgb": (206, 179, 143)},
+    {"dmc": "3781", "name": "Dark Mocha Brown",        "rgb": (130, 99,  68)},
+    {"dmc": "3780", "name": "Ultra Very Dark Mocha Brown", "rgb": (101, 72,  44)},
+]
