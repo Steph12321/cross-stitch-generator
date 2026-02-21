@@ -8,7 +8,7 @@ A Flask web app that converts uploaded photos into printable cross-stitch patter
 cross-stitch-generator/
 ├── app.py               # Flask routes (thin layer)
 ├── pattern.py           # All image processing logic
-├── dmc_colors.py        # DMC thread colour database (~88 colours)
+├── dmc_colors.py        # DMC thread colour database (~106 colours)
 ├── requirements.txt
 ├── templates/
 │   └── index.html       # Single Jinja2 page: form + result
@@ -24,6 +24,7 @@ No file writes to disk — uploaded images and generated patterns are handled in
 - **Pillow (PIL)** — image manipulation and pattern rendering
 - **scikit-learn** — KMeans colour quantization
 - **numpy** — array operations and vectorised colour matching
+- **ReportLab** — PDF generation for the downloadable pattern
 
 ## Core Algorithm
 1. User uploads photo + selects number of colours (8–24) and grid width (30–100 stitches)
@@ -32,7 +33,7 @@ No file writes to disk — uploaded images and generated patterns are handled in
 4. Map each centroid to nearest DMC thread colour using CIE LAB distance (perceptually accurate)
 5. Assign a unique symbol (A, B, C...) to each DMC colour used
 6. Draw output: 10×10 px cells per stitch, filled with DMC colour, symbol drawn in contrasting text, grid lines on top
-7. Encode result as base64 PNG for inline display + download
+7. Encode result as base64 PNG for inline display; also cache PIL Image for PDF generation
 
 ## Key Functions in `pattern.py`
 | Function | Purpose |
@@ -46,18 +47,29 @@ No file writes to disk — uploaded images and generated patterns are handled in
 | `get_contrast_color(rgb)` | WCAG luminance → black or white text colour |
 | `generate_pattern_image(...)` | Draw all stitch cells + grid lines → PIL Image |
 | `generate_legend(...)` | Build legend list with hex codes for template |
-| `process_image(...)` | Top-level orchestrator: open → resize → quantize → draw → base64 |
+| `generate_pdf(...)` | Build 2-page A4 PDF (pattern grid + legend table) via ReportLab |
+| `process_image(...)` | Top-level orchestrator: open → resize → quantize → draw → base64 + PIL Image |
+
+## PDF Download
+- `GET /download-pdf` route in `app.py` serves the PDF
+- `app.py` caches the last full result (including PIL Image) in `_pdf_cache` after each generation; the PIL Image is stripped before passing to the Jinja2 template
+- `generate_pdf()` builds a 2-page A4 PDF:
+  - **Page 1:** pattern grid image scaled to fill the page (pre-upscaled with PIL `NEAREST` at ~150 DPI for crisp stitch cells)
+  - **Page 2:** thread legend table with colour swatches, hex codes, DMC numbers, and thread names
+- PDF colour scheme mirrors the web UI: teal (`#0d9488`) header, `#f0fdfa` alternating rows, slate text, `#e2e8f0` borders
+- ReportLab `drawImage` does not accept an `interpolation` kwarg — use PIL `NEAREST` pre-scaling instead
 
 ## UI
 - Single page: upload form always visible, result section appears below after processing
 - Pattern displayed inline as base64 image
-- Download button saves pattern as PNG
+- Download button (`GET /download-pdf`) saves a 2-page PDF
 - Colour legend table: Symbol | Swatch | DMC Number | Colour Name
 - `image-rendering: pixelated` CSS prevents browser from blurring the pixel-art pattern
 - Print styles hide form and download button
+- Colour scheme: teal (`#0d9488`) primary, orange (`#f97316`) CTA button, slate grays for text
 
 ## DMC Colour Database (`dmc_colors.py`)
-~88 DMC stranded cotton colours covering:
+~106 DMC stranded cotton colours covering:
 - Blacks, whites, grays
 - Reds, pinks, roses
 - Purples, violets
@@ -68,7 +80,7 @@ No file writes to disk — uploaded images and generated patterns are handled in
 
 ## Running Locally
 ```bash
-pip install Flask Pillow scikit-learn numpy
+pip install Flask Pillow scikit-learn numpy reportlab
 python app.py
 # Visit http://127.0.0.1:5000
 ```
