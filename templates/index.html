@@ -3,47 +3,82 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Cross-Stitch Pattern Generator</title>
+  <title>Cross-Stitch Studio</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;500;600;700;800&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
 </head>
 <body>
+
   <header>
-    <h1>Cross-Stitch Pattern Generator</h1>
-    <p class="tagline">Upload a photo and get a printable cross-stitch pattern with DMC thread codes.</p>
+    <div class="header-inner">
+      <div class="logo">
+        <span class="logo-icon">✂</span>
+        <span class="logo-text">Cross-Stitch Studio</span>
+      </div>
+      <p class="tagline">Turn any photo into a printable cross-stitch pattern with DMC thread codes</p>
+    </div>
   </header>
 
   <main>
-    <!-- Upload Form (always visible) -->
-    <section class="form-section no-print">
+
+    <!-- Upload Form -->
+    <section class="card form-card no-print">
       <form method="POST" enctype="multipart/form-data" id="upload-form">
+
+        <!-- Drag-and-drop zone -->
         <div class="field">
-          <label for="photo">Photo</label>
-          <input type="file" id="photo" name="photo" accept="image/*" required>
+          <div class="drop-zone" id="drop-zone">
+            <div class="drop-zone__icon">
+              <svg xmlns="http://www.w3.org/2000/svg" width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+                <rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5"/>
+                <polyline points="21 15 16 10 5 21"/>
+              </svg>
+            </div>
+            <p class="drop-zone__title">Drag &amp; drop your photo here</p>
+            <p class="drop-zone__sub">or <span class="drop-zone__browse">browse files</span></p>
+            <p class="drop-zone__file-name" id="file-name">JPEG, PNG, GIF, BMP or WebP — max 16 MB</p>
+            <input type="file" id="photo" name="photo" accept="image/*" required class="drop-zone__input">
+          </div>
         </div>
 
-        <div class="field">
-          <label for="n_colors">
-            Number of colours: <strong id="n_colors_val">16</strong>
-          </label>
-          <input
-            type="range" id="n_colors" name="n_colors"
-            min="8" max="24" value="16"
-            oninput="document.getElementById('n_colors_val').textContent = this.value">
-          <div class="range-labels"><span>8</span><span>24</span></div>
+        <!-- Colour count slider -->
+        <div class="field slider-field">
+          <div class="slider-header">
+            <label for="n_colors">Number of colours</label>
+            <span class="slider-value" id="n_colors_val">16</span>
+          </div>
+          <div class="slider-track-wrapper">
+            <input
+              type="range" id="n_colors" name="n_colors"
+              min="8" max="24" value="16"
+              oninput="updateSlider(this, 'n_colors_val', 'n_colors_fill')">
+            <div class="slider-fill" id="n_colors_fill" style="width: 50%"></div>
+          </div>
+          <div class="range-labels"><span>8 colours</span><span>24 colours</span></div>
         </div>
 
-        <div class="field">
-          <label for="grid_width">
-            Grid width (stitches): <strong id="grid_width_val">60</strong>
-          </label>
-          <input
-            type="range" id="grid_width" name="grid_width"
-            min="30" max="100" value="60"
-            oninput="document.getElementById('grid_width_val').textContent = this.value">
-          <div class="range-labels"><span>30</span><span>100</span></div>
+        <!-- Grid width slider -->
+        <div class="field slider-field">
+          <div class="slider-header">
+            <label for="grid_width">Grid width</label>
+            <span class="slider-value" id="grid_width_val">60</span>
+          </div>
+          <div class="slider-track-wrapper">
+            <input
+              type="range" id="grid_width" name="grid_width"
+              min="30" max="100" value="60"
+              oninput="updateSlider(this, 'grid_width_val', 'grid_width_fill')">
+            <div class="slider-fill" id="grid_width_fill" style="width: 42.86%"></div>
+          </div>
+          <div class="range-labels"><span>30 stitches wide</span><span>100 stitches wide</span></div>
         </div>
 
-        <button type="submit" class="btn-generate">Generate Pattern</button>
+        <button type="submit" class="btn-generate">
+          <span class="btn-icon">✦</span> Generate Pattern
+        </button>
+
       </form>
 
       {% if error %}
@@ -53,13 +88,14 @@
 
     <!-- Result Section -->
     {% if result %}
-    <section class="result-section">
-      <h2>Your Pattern</h2>
-      <p class="pattern-info">
-        Grid: <strong>{{ result.grid_width }} × {{ result.grid_height }}</strong> stitches
-        &nbsp;|&nbsp;
-        Colours used: <strong>{{ result.n_colors_used }}</strong>
-      </p>
+    <section class="card result-card">
+      <div class="result-header">
+        <h2>Your Pattern</h2>
+        <div class="stat-pills">
+          <span class="pill pill--teal">{{ result.grid_width }} × {{ result.grid_height }} stitches</span>
+          <span class="pill pill--coral">{{ result.n_colors_used }} colours</span>
+        </div>
+      </div>
 
       <div class="pattern-wrapper">
         <img
@@ -72,39 +108,99 @@
         class="btn-download no-print"
         href="data:image/png;base64,{{ result.image_b64 }}"
         download="cross_stitch_pattern.png">
-        Download Pattern (PNG)
+        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/>
+        </svg>
+        Download Pattern PNG
       </a>
 
-      <h3>Colour Legend</h3>
-      <table class="legend-table">
-        <thead>
-          <tr>
-            <th>Symbol</th>
-            <th>Colour</th>
-            <th>DMC #</th>
-            <th>Name</th>
-          </tr>
-        </thead>
-        <tbody>
-          {% for entry in result.legend %}
-          <tr>
-            <td class="symbol-cell">{{ entry.symbol }}</td>
-            <td>
-              <span class="swatch" style="background-color: {{ entry.hex }};"></span>
-              {{ entry.hex }}
-            </td>
-            <td>{{ entry.dmc }}</td>
-            <td>{{ entry.name }}</td>
-          </tr>
-          {% endfor %}
-        </tbody>
-      </table>
+      <h3 class="legend-heading">Thread Legend</h3>
+      <div class="legend-wrapper">
+        <table class="legend-table">
+          <thead>
+            <tr>
+              <th>Symbol</th>
+              <th>Colour</th>
+              <th>DMC #</th>
+              <th>Name</th>
+            </tr>
+          </thead>
+          <tbody>
+            {% for entry in result.legend %}
+            <tr>
+              <td class="symbol-cell">{{ entry.symbol }}</td>
+              <td class="swatch-cell">
+                <span class="swatch" style="background-color: {{ entry.hex }};"></span>
+                <span class="hex-code">{{ entry.hex }}</span>
+              </td>
+              <td class="dmc-cell">{{ entry.dmc }}</td>
+              <td>{{ entry.name }}</td>
+            </tr>
+            {% endfor %}
+          </tbody>
+        </table>
+      </div>
     </section>
     {% endif %}
+
   </main>
 
   <footer class="no-print">
-    <p>Patterns use DMC stranded cotton thread colours.</p>
+    <p>Patterns use DMC stranded cotton thread colour codes &nbsp;·&nbsp; Cross-Stitch Studio</p>
   </footer>
+
+  <script>
+    // ── Slider fill bar + thumb position ────────────────────────
+    function updateSlider(input, valId, fillId) {
+      document.getElementById(valId).textContent = input.value;
+      const pct = (input.value - input.min) / (input.max - input.min) * 100;
+      document.getElementById(fillId).style.width = pct + '%';
+      input.closest('.slider-track-wrapper').style.setProperty('--thumb-pct', pct + '%');
+    }
+
+    // Initialise thumb positions on load
+    document.querySelectorAll('.slider-track-wrapper input[type=range]').forEach(input => {
+      const pct = (input.value - input.min) / (input.max - input.min) * 100;
+      input.closest('.slider-track-wrapper').style.setProperty('--thumb-pct', pct + '%');
+    });
+
+    // ── Drag-and-drop upload zone ────────────────────────────────
+    const zone   = document.getElementById('drop-zone');
+    const fileIn = document.getElementById('photo');
+    const label  = document.getElementById('file-name');
+
+    function showFile(file) {
+      label.textContent = file ? file.name : 'JPEG, PNG, GIF, BMP or WebP — max 16 MB';
+      if (file) zone.classList.add('drop-zone--chosen');
+    }
+
+    // Click anywhere on zone opens file picker
+    zone.addEventListener('click', () => fileIn.click());
+
+    fileIn.addEventListener('change', () => showFile(fileIn.files[0] || null));
+
+    zone.addEventListener('dragover', e => {
+      e.preventDefault();
+      zone.classList.add('drop-zone--over');
+    });
+
+    ['dragleave', 'dragend'].forEach(ev =>
+      zone.addEventListener(ev, () => zone.classList.remove('drop-zone--over'))
+    );
+
+    zone.addEventListener('drop', e => {
+      e.preventDefault();
+      zone.classList.remove('drop-zone--over');
+      const file = e.dataTransfer.files[0];
+      if (file) {
+        // Assign the dropped file to the real input
+        const dt = new DataTransfer();
+        dt.items.add(file);
+        fileIn.files = dt.files;
+        showFile(file);
+      }
+    });
+  </script>
+
 </body>
 </html>
